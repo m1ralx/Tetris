@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.IO;
+using System.Runtime.Remoting.Channels;
 
 namespace TetrisVisualizer
 {
@@ -13,14 +14,21 @@ namespace TetrisVisualizer
     {
         static void Main(string[] args)
         {
-            FileStream stream = File.Open("largeTest.json", FileMode.Open);
-            StreamReader reader = new StreamReader(stream);
-
-            JsonReader jReader = new JsonTextReader(reader);
-            JToken jToken = JObject.ReadFrom(jReader);
-
-            JsonSerializer = new JsonSerializer
-            //JObject search = JObject.Load
+//            var loader = new GameInfoLoader("medium.json");
+            var loader = new GameInfoLoader("smallest.json");
+//            var loader = new GameInfoLoader("veryLargeTest.json");
+//            var loader = new GameInfoLoader("largeTest.json");
+            var i = 0;
+            foreach (var c in loader.ReadCommandsSequence())
+            {
+                Console.WriteLine(c);
+                Console.ReadKey();
+                i++;
+//                if (i == 11)
+//                    break;
+//                Console.ReadKey();
+            }
+//            Console.WriteLine(i);
         }
     }
 }
