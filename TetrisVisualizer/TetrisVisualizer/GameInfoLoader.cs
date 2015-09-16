@@ -1,31 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.ComTypes;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace TetrisVisualizer
 {
-//    static class StreamExtensions
-//    {
-//        public static char GetCurrentChar(this FileStream fs)
-//        {
-//            return (char)fs.ReadByte();
-////            var bytes = new byte[1];
-////            fs.Read(bytes, 0, 1);
-////            var currentChar = Encoding.UTF8.GetString(bytes);
-////            return currentChar;
-//        }
-//    }
     public class GameInfoLoader
     {
         public string FilePath { get; private set; }
@@ -45,7 +27,9 @@ namespace TetrisVisualizer
                 while (reader.Read())
                 {
                     if (reader.TokenType == JsonToken.Integer)
-                        sizes.Add((int) reader.Value);
+                    {
+                        sizes.Add((int.Parse(reader.Value.ToString())));
+                    }
                     if (sizes.Count == 2)
                         break;
                 }
@@ -55,7 +39,7 @@ namespace TetrisVisualizer
             return Tuple.Create(width, height);
         }
 
-        public IEnumerable<Piece> ReadPiecesSequence(int width, int height)
+        public IEnumerable<Piece> GetPiecesSequence(int width, int height)
         {
             int startObjectCount = 0;
             JsonTextReader jReader;
@@ -73,9 +57,11 @@ namespace TetrisVisualizer
                         if (startObjectCount > 1)
                         {
                             JObject obj = JObject.Load(jReader);
-                            ImmutableArray<Point> points = obj["Cells"]
+//                            ImmutableArray<Point> points = obj["Cells"]
+                            ImmutableHashSet<Point> points = obj["Cells"]
                                 .Select(cell => new Point((int) cell["X"], (int) cell["Y"]))
-                                .ToImmutableArray();
+//                                .ToImmutableArray();
+                                .ToImmutableHashSet();
                             yield return new Piece(points, width, height);
                         }
                     }
@@ -91,9 +77,9 @@ namespace TetrisVisualizer
             }
         }
 
-        public IEnumerable<string> ReadCommandsSequence()
+        public IEnumerable<string> GetCommandsSequence()
         {
-            using (FileStream fileStream = new FileStream(FilePath, FileMode.Open))
+            using (FileStream fileStream = new FileStream(FilePath, FileMode.Open, FileAccess.Read))
             using (StreamReader streamReader = new StreamReader(fileStream))
             using (JsonTextReader jReader = new JsonTextReader(streamReader))
             {
