@@ -21,8 +21,8 @@ namespace TetrisVisualizer
         {
             var sizes = new List<int>();
             using (var fs = new FileStream(FilePath, FileMode.Open, FileAccess.Read))
-            using (StreamReader sr = new StreamReader(fs))
-            using (JsonTextReader reader = new JsonTextReader(sr))
+            using (var sr = new StreamReader(fs))
+            using (var reader = new JsonTextReader(sr))
             {
                 while (reader.Read())
                 {
@@ -79,9 +79,9 @@ namespace TetrisVisualizer
 
         public IEnumerable<string> GetCommandsSequence()
         {
-            using (FileStream fileStream = new FileStream(FilePath, FileMode.Open, FileAccess.Read))
-            using (StreamReader streamReader = new StreamReader(fileStream))
-            using (JsonTextReader jReader = new JsonTextReader(streamReader))
+            using (var fileStream = new FileStream(FilePath, FileMode.Open, FileAccess.Read))
+            using (var streamReader = new StreamReader(fileStream))
+            using (var jReader = new JsonTextReader(streamReader))
             {
                 while (jReader.Read())
                 {

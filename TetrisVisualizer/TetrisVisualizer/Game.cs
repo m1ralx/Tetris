@@ -53,66 +53,27 @@ namespace TetrisVisualizer
             if (!_commandsEnumerator.MoveNext())
                 return null;
             var command = _commandsEnumerator.Current;
-            Piece newPiece;
-            switch (command)
+            if (command == "P")
             {
-                case "A":
+                Print(newUsedCells, _currentPiece);
+                return new Game(newUsedCells, _commandsEnumerator, _piecesEnumerator, _commandNumber + 1, _currentPiece)
                 {
-                    newPiece = _currentPiece.Move(Direction.Left);
-                    break;
-                }
-                case "S":
-                {
-                    newPiece = _currentPiece.Move(Direction.Down);
-                    break;
-                }
-                case "D":
-                {
-                    newPiece = _currentPiece.Move(Direction.Right);
-                    break;
-                }
-                case "Q":
-                {
-                    newPiece = _currentPiece.Rotate(Direction.CounterClockwise);
-                    break;
-                }
-                case "E":
-                {
-                    newPiece = _currentPiece.Rotate(Direction.Clockwise);
-                    break;
-                }
-                default:
-                {
-                    Print(newUsedCells, _currentPiece);
-                    return new Game(newUsedCells, _commandsEnumerator, _piecesEnumerator, _commandNumber + 1, _currentPiece)
-                    {
-                        Score = Score,
-                        Width = Width,
-                        Height = Height
-                    };
-                }
+                    Score = Score,
+                    Width = Width,
+                    Height = Height
+                };
             }
+            var newPiece = ApplyCommand(command);
             Piece newCurrentPiece;
             if (!PieceCanBeHere(newPiece, newUsedCells))
             {
                 newUsedCells = FixPiece(newUsedCells);
                 newUsedCells = ClearFullRows(newUsedCells);
-                _piecesEnumerator.MoveNext();
-                newCurrentPiece = _piecesEnumerator.Current;
-                if (!PieceCanBeHere(newCurrentPiece, newUsedCells))
-                {
-                    newUsedCells = newUsedCells.Clear();
-                    Score -= 10;
-                }
+                newCurrentPiece = SpawnNewPiece(ref newUsedCells);
                 Console.WriteLine("{0} {1}", _commandNumber, Score);
             }
             else
                 newCurrentPiece = newPiece;
-//            Console.WriteLine("Command: " + _commandNumber + " " + command);
-//            Print(newUsedCells, newCurrentPiece);
-//            Console.WriteLine("---------");
-//            Console.ReadLine();
-//            Console.WriteLine("---------");
             return new Game(newUsedCells, _commandsEnumerator, _piecesEnumerator, _commandNumber + 1, newCurrentPiece)
             {
                 Score = Score,
@@ -120,7 +81,41 @@ namespace TetrisVisualizer
                 Height = Height
             };
         }
-        
+
+        private Piece SpawnNewPiece(ref ImmutableDictionary<int, ImmutableHashSet<int>> newUsedCells)
+        {
+            _piecesEnumerator.MoveNext();
+            var newCurrentPiece = _piecesEnumerator.Current;
+            if (!PieceCanBeHere(newCurrentPiece, newUsedCells))
+            {
+                newUsedCells = newUsedCells.Clear();
+                Score -= 10;
+            }
+            return newCurrentPiece;
+        }
+
+        private Piece ApplyCommand(string command)
+        {
+            // почему switch, а не, например, словарь <string, Func<Piece>?
+            // Потому что фигуры постоянно меняются и слишком затрано
+            // для каждой инициализировать свой словарь
+            switch (command)
+            {
+                case "A":
+                    return _currentPiece.Move(Direction.Left);
+                case "S":
+                    return _currentPiece.Move(Direction.Down);
+                case "D":
+                    return _currentPiece.Move(Direction.Right);
+                case "Q":
+                    return _currentPiece.Rotate(Direction.CounterClockwise);
+                case "E":
+                    return _currentPiece.Rotate(Direction.Clockwise);
+                default:
+                    return null;
+            }
+        }
+
         private bool PointInField(Point point)
         {
             return point.X >= 0 && point.X < Width && point.Y >= 0 && point.Y < Height;

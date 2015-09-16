@@ -1,32 +1,17 @@
-﻿using System;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Linq;
 
 namespace TetrisVisualizer
 {
     public class Piece
     {
-//        public ImmutableArray<Point> Cells { get; private set; }
-//        public ImmutableArray<Point> AbsoluteCoordinates { get; private set; }
-        public ImmutableHashSet<Point> Cells { get; private set; }
-        public ImmutableHashSet<Point> AbsoluteCoordinates { get; private set; }
+        public readonly ImmutableHashSet<Point> Cells;
+        public readonly ImmutableHashSet<Point> AbsoluteCoordinates;
         private Point AbsoluteCenterCoordinates { get; set; }
 
         private int Width { get; set; }
         private int Height { get; set; }
 
-//        private Piece(ImmutableArray<Point> cellsParam, Point absoluteCoordinatesOfCenter)
-//        {
-//            Cells = cellsParam;
-//            AbsoluteCoordinates = Cells.Select(cell =>
-//                new Point(
-//                    cell.X + absoluteCoordinatesOfCenter.X,
-//                    cell.Y + absoluteCoordinatesOfCenter.Y
-//                    )).ToImmutableArray();
-//            Commands = GetCommandsDictionary();
-//        }
-
-//        public Piece(ImmutableArray<Point> cellsParam, int width, int height)
         public Piece(ImmutableHashSet<Point> cellsParam, int width, int height)
         {
             Cells = cellsParam;
@@ -38,18 +23,14 @@ namespace TetrisVisualizer
                         new Point(
                             AbsoluteCenterCoordinates.X + cell.X,
                             AbsoluteCenterCoordinates.Y - cell.Y
-//                            )).ToImmutableArray();
                             )).ToImmutableHashSet();
-//            Commands = GetCommandsDictionary();
         }
 
-//        private Piece(ImmutableArray<Point> cellsParam, ImmutableArray<Point> absoluteCoordinatesParam, Point absCenterCoordinatesParam)
         private Piece(ImmutableHashSet<Point> cellsParam, ImmutableHashSet<Point> absoluteCoordinatesParam, Point absCenterCoordinatesParam)
         {
             Cells = cellsParam;
             AbsoluteCoordinates = absoluteCoordinatesParam;
             AbsoluteCenterCoordinates = absCenterCoordinatesParam;
-//            Commands = GetCommandsDictionary();
         }
 
         public Piece Rotate(Point direction)
@@ -57,13 +38,12 @@ namespace TetrisVisualizer
             var newCells = Cells.Select(cell => new Point(
                 -1*cell.Y*direction.X,
                 cell.X*direction.X
-//                )).ToImmutableArray();
                 )).ToImmutableHashSet();
+
             var newAbsoluteCoordinates = newCells
                 .Select(cell => new Point( 
                     cell.X + AbsoluteCenterCoordinates.X,
                     AbsoluteCenterCoordinates.Y - cell.Y
-//                    )).ToImmutableArray();
                     )).ToImmutableHashSet();
             return new Piece(newCells, newAbsoluteCoordinates, AbsoluteCenterCoordinates);
         }
@@ -74,7 +54,6 @@ namespace TetrisVisualizer
                 .Select(coordinates => new Point(
                     coordinates.X + direction.X,
                     coordinates.Y + direction.Y)
-//                    ).ToImmutableArray();
                     ).ToImmutableHashSet();
             var newAbsoluteCenterCoordinates = new Point(AbsoluteCenterCoordinates.X + direction.X,
                 AbsoluteCenterCoordinates.Y + direction.Y);
